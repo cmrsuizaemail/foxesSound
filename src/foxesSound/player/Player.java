@@ -13,57 +13,30 @@ import foxesSound.decoder.SampleBuffer;
  * The <code>Player</code> class implements a simple player for playback
  * of an MPEG audio stream. 
  * 
- * @author	Mat McGowan
- * @since	0.0.8
+ * @author	AidenFox
+ * @since	0.0.9
  */
 
 // REVIEW: the audio device should not be opened until the
 // first MPEG audio frame has been decoded. 
 public class Player
 {	  	
-	/**
-	 * The current frame number. 
-	 */
-	private int frame = 0;
 	
-	/**
-	 * The MPEG audio bitstream. 
-	 */
-	// javac blank final bug. 
-	/*final*/ private Bitstream		bitstream;
+	private int frame = 0; /* The current frame number. */
 	
-	/**
-	 * The MPEG audio decoder. 
-	 */
-	/*final*/ private Decoder		decoder; 
+	/*final*/ private Bitstream bitstream; /* The MPEG audio bitstream. */
+	/*final*/ private Decoder decoder; /* The MPEG audio decoder. */
+	private AudioDevice audio; /* The AudioDevice the audio samples are written to.  */
+	private boolean	closed = false;/* Has the player been closed? */
+	private boolean	complete = false; /* Has the player played back all frames from the stream?*/
+	private int lastPosition = 0;
 	
-	/**
-	 * The AudioDevice the audio samples are written to. 
-	 */
-	private AudioDevice	audio;
-	
-	/**
-	 * Has the player been closed?
-	 */
-	private boolean		closed = false;
-	
-	/**
-	 * Has the player played back all frames from the stream?
-	 */
-	private boolean		complete = false;
-
-	private int			lastPosition = 0;
-	
-	/**
-	 * Creates a new <code>Player</code> instance. 
-	 */
-	public Player(InputStream stream) throws JavaLayerException
-	{
+	/* Creates a new <code>Player</code> instance. */
+	public Player(InputStream stream) throws JavaLayerException {
 		this(stream, null);	
 	}
 	
-	public Player(InputStream stream, AudioDevice device) throws JavaLayerException
-	{
+	public Player(InputStream stream, AudioDevice device) throws JavaLayerException {
 		bitstream = new Bitstream(stream);		
 		decoder = new Decoder();
 				
@@ -79,8 +52,7 @@ public class Player
 		audio.open(decoder);
 	}
 	
-	public void play() throws JavaLayerException
-	{
+	public void play() throws JavaLayerException {
 		play(Integer.MAX_VALUE);
 	}
 	
@@ -90,39 +62,31 @@ public class Player
 	 * @param frames	The number of frames to play. 
 	 * @return	true if the last frame was played, or false if there are
 	 *			more frames. 
+         * @throws foxesSound.decoder.JavaLayerException 
 	 */
-	public boolean play(int frames) throws JavaLayerException
-	{
-		boolean ret = true;
+	public boolean play(int frames) throws JavaLayerException {
+            boolean ret = true;
 			
-		while (frames-- > 0 && ret)
-		{
-			ret = decodeFrame();			
-		}
+            while (frames-- > 0 && ret) {
+            ret = decodeFrame();			
+            }
 		
-		if (!ret)
-		{
-			// last frame, ensure all data flushed to the audio device. 
-			AudioDevice out = audio;
-			if (out!=null)
-			{				
-				out.flush();
-				synchronized (this)
-				{
-					complete = (!closed);
-					close();
-				}				
-			}
-		}
-		return ret;
+            if (!ret) {
+		// last frame, ensure all data flushed to the audio device. 
+                    AudioDevice out = audio;
+                if (out!=null){				
+                    out.flush();
+                    synchronized (this){
+                        complete = (!closed);
+                        close();
+                    }				
+                }
+            }
+            return ret;
 	}
 		
-	/**
-	 * Cloases this player. Any audio currently playing is stopped
-	 * immediately. 
-	 */
-	public synchronized void close()
-	{		
+	/* Cloases this player. Any audio currently playing is stopped immediately. */
+	public synchronized void close() {		
 		AudioDevice out = audio;
 		if (out!=null)
 		{ 
@@ -158,6 +122,7 @@ public class Player
 	 * sample being played. This method delegates to the <code>
 	 * AudioDevice</code> that is used by this player to sound
 	 * the decoded audio samples. 
+         * @return 
 	 */
 	public int getPosition()
 	{
@@ -175,6 +140,7 @@ public class Player
 	 * Decodes a single frame.
 	 * 
 	 * @return true if there are no more frames to decode, false otherwise.
+         * @throws foxesSound.decoder.JavaLayerException
 	 */
 	protected boolean decodeFrame() throws JavaLayerException
 	{		

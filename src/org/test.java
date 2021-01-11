@@ -16,7 +16,7 @@ import java.io.FileNotFoundException;
 public class test {
     public static void main(String[] args) throws JavaLayerException, FileNotFoundException {
         playSound snd = new playSound();
-        //snd.playExternalSound("C:\\Users\\AidenFox\\Desktop\\snd\\MUS\\8bit.mp3", (float) -20f);
-        snd.playInternalSound("/assets/370.mp3", 5f);
+        snd.playExternalSound("C:\\Users\\AidenFox\\Desktop\\370.mp3", (float) -10f);
+        snd.playInternalSound("/assets/340.mp3", 5f);
     }
 }
