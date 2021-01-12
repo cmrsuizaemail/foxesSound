@@ -8,6 +8,8 @@ import foxesSound.decoder.Decoder;
 import foxesSound.decoder.Header;
 import foxesSound.decoder.JavaLayerException;
 import foxesSound.decoder.SampleBuffer;
+import java.nio.ByteBuffer;
+import static org.SysUtils.sendErr;
 	
 /**
  * The <code>Player</code> class implements a simple player for playback
@@ -108,9 +110,8 @@ public class Player
 	
 	/**
 	 * Returns the completed status of this player.
-	 * 
 	 * @return	true if all available MPEG audio frames have been
-	 *			decoded, or false otherwise. 
+	 * decoded, or false otherwise. 
 	 */
 	public synchronized boolean isComplete()
 	{
@@ -136,76 +137,82 @@ public class Player
 		return position;
 	}		
 	
-	/**
-	 * Decodes a single frame.
-	 * 
+	/*
+	 * Decodes a single frame
 	 * @return true if there are no more frames to decode, false otherwise.
          * @throws foxesSound.decoder.JavaLayerException
 	 */
-	protected boolean decodeFrame() throws JavaLayerException
-	{		
-		try
-		{
+	protected boolean decodeFrame() throws JavaLayerException {		
+		try {
 			AudioDevice out = audio;
-			if (out==null)
-				return false;
+			if (out == null){
+                            sendErr("Audio device is not avialable");
+                            return false;
+                        }
 
 			Header h = bitstream.readFrame();	
 			
-			if (h==null)
-				return false;
+			if (h == null){
+                            return false;
+                        }
 				
 			// sample buffer set when decoder constructed
 			SampleBuffer output = (SampleBuffer)decoder.decodeFrame(h, bitstream);
-																																					
-			synchronized (this)
-			{
-				out = audio;
-				if (out!=null)
-				{					
-					out.write(output.getBuffer(), 0, output.getBufferLength());
-				}				
-			}
-																			
+			byte[] array = ShortToByte(output.getBuffer());
+                        org.SysUtils.send(output.getBuffer()+"");
+                        int size = array.length;
+			
+                        synchronized (this) {
+                            out = audio;
+                            if (out != null) {					
+                                //out.write(output.getBuffer(), 0, array.length);
+                                out.write(output.getBuffer(),  0,  size);
+                            }				
+			}															
 			bitstream.closeFrame();
+		} catch (RuntimeException ex) {
+                    throw new JavaLayerException("Exception decoding audio frame", ex);
 		}		
-		catch (RuntimeException ex)
-		{
-			throw new JavaLayerException("Exception decoding audio frame", ex);
-		}
-/*
-		catch (IOException ex)
-		{
-			System.out.println("exception decoding audio frame: "+ex);
-			return false;	
-		}
-		catch (BitstreamException bitex)
-		{
-			System.out.println("exception decoding audio frame: "+bitex);
-			return false;	
-		}
-		catch (DecoderException decex)
-		{
-			System.out.println("exception decoding audio frame: "+decex);
-			return false;				
-		}
-*/		
 		return true;
 	}
         
-        public boolean setGain(float newGain) {
-        if (audio instanceof JavaSoundAudioDevice) {
-            //System.out.println("Instance Of "+audio);
-            JavaSoundAudioDevice jsAudio = (JavaSoundAudioDevice) audio;
-            try {
-                jsAudio.write(null, 0, 0);
-            } catch (JavaLayerException ex) {
-                ex.printStackTrace();
+        private byte[] ShortToByte(short[] buffer) {
+            int N = buffer.length;
+            float f[] = new float[N];
+            float min = 0.0f;
+            float max = 0.0f;
+            for (int i=0; i<N; i++) {
+            f[i] = (float)(buffer[i]);
+            if (f[i] > max) max = f[i];
+            if (f[i] < min) min = f[i];
             }
-                return jsAudio.setLineGain(newGain);
+            float scaling = 1.0f+(max-min)/256.0f; // +1 ensures we stay within range and guarantee no divide by zero if sequence is pure silence ...
+
+            ByteBuffer byteBuf = ByteBuffer.allocate(N);
+            for (int i=0; i<N; i++) {
+            byte b = (byte)(f[i]/scaling); /*convert to byte. */
+            byteBuf.put(b);
             }
-            return false;
+            return byteBuf.array();
         }
+        
+        public static byte[] toBytes(short s) {
+            return new byte[]{(byte)(s & 0x00FF),(byte)((s & 0xFF00)>>8)};
+        }
+        
+        public boolean setGain(float newGain) {
+            if (audio instanceof JavaSoundAudioDevice) {
+                //System.out.println("Instance Of "+audio);
+                JavaSoundAudioDevice jsAudio = (JavaSoundAudioDevice) audio;
+                    try {
+                        jsAudio.write(null, 0, 0);
+                    } catch (JavaLayerException ex) {
+                        ex.printStackTrace();
+                    }
+                    return jsAudio.setLineGain(newGain);
+                }
+                return false;
+            }
 
 	
 }
