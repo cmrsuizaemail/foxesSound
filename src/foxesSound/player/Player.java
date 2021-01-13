@@ -9,6 +9,8 @@ import foxesSound.decoder.Header;
 import foxesSound.decoder.JavaLayerException;
 import foxesSound.decoder.SampleBuffer;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import static org.SysUtils.send;
 import static org.SysUtils.sendErr;
 	
 /**
@@ -25,7 +27,6 @@ public class Player
 {	  	
 	
 	private int frame = 0; /* The current frame number. */
-	
 	/*final*/ private Bitstream bitstream; /* The MPEG audio bitstream. */
 	/*final*/ private Decoder decoder; /* The MPEG audio decoder. */
 	private AudioDevice audio; /* The AudioDevice the audio samples are written to.  */
@@ -117,8 +118,7 @@ public class Player
 	 * @return	true if all available MPEG audio frames have been
 	 * decoded, or false otherwise. 
 	 */
-	public synchronized boolean isComplete()
-	{
+	public synchronized boolean isComplete() {
 		return complete;	
 	}
 				
@@ -129,8 +129,7 @@ public class Player
 	 * the decoded audio samples. 
          * @return 
 	 */
-	public int getPosition()
-	{
+	public int getPosition() {
 		int position = lastPosition;
 		
 		AudioDevice out = audio;		
@@ -161,17 +160,17 @@ public class Player
                         }
 				
 			// sample buffer set when decoder constructed
-			SampleBuffer output = (SampleBuffer)decoder.decodeFrame(h, bitstream);
+			SampleBuffer output = (SampleBuffer) decoder.decodeFrame(h, bitstream);
 			byte[] array = ShortToByte(output.getBuffer());
-                        org.SysUtils.send(output.getBuffer()+"");
+                        //send(Arrays.toString(output.getBuffer())+" / "+Arrays.toString(array));
                         int size = array.length;
 			
                         synchronized (this) {
                             out = audio;
-                            if (out != null) {					
+                            if (out != null) {
                                 //out.write(output.getBuffer(), 0, array.length);
                                 out.write(output.getBuffer(),  0,  output.getBufferLength());
-                            }				
+                            }
 			}															
 			bitstream.closeFrame();
 		} catch (RuntimeException ex) {
@@ -190,7 +189,7 @@ public class Player
             if (f[i] > max) max = f[i];
             if (f[i] < min) min = f[i];
             }
-            float scaling = 1.0f+(max-min)/256.0f; // +1 ensures we stay within range and guarantee no divide by zero if sequence is pure silence ...
+            float scaling = 1.0f+(max-min)/256.0f;
 
             ByteBuffer byteBuf = ByteBuffer.allocate(N);
             for (int i=0; i<N; i++) {
@@ -199,11 +198,7 @@ public class Player
             }
             return byteBuf.array();
         }
-        
-        public static byte[] toBytes(short s) {
-            return new byte[]{(byte)(s & 0x00FF),(byte)((s & 0xFF00)>>8)};
-        }
-        
+
         public boolean setGain(float newGain) {
             if (audio instanceof JavaSoundAudioDevice) {
                 //System.out.println("Instance Of "+audio);

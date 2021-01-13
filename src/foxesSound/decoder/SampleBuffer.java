@@ -13,6 +13,8 @@ public class SampleBuffer extends Obuffer
   
   /**
    * Constructor
+   * @param sample_frequency
+   * @param number_of_channels
    */
   public SampleBuffer(int sample_frequency, int number_of_channels)
   {
@@ -48,13 +50,17 @@ public class SampleBuffer extends Obuffer
   
   /**
    * Takes a 16 Bit PCM sample.
+   * @param channel
+   * @param value
    */
+  @Override
   public void append(int channel, short value)
   {
 	buffer[bufferp[channel]] = value;
 	bufferp[channel] += channels;	  	
   }
   
+  @Override
 	public void appendSamples(int channel, float[] f)
 	{
 	    int pos = bufferp[channel];
@@ -78,7 +84,9 @@ public class SampleBuffer extends Obuffer
   
   /**
    * Write the samples to the file (Random Acces).
+   * @param val
    */
+  @Override
   public void write_buffer(int val)
   {
 				  
@@ -87,12 +95,14 @@ public class SampleBuffer extends Obuffer
 
   }
 
-  public void close()
-  {}
+  @Override
+  public void close(){
+  }
   
   /**
    *
    */
+  @Override
   public void clear_buffer()
   {
 	for (int i = 0; i < channels; ++i) 
@@ -102,6 +112,7 @@ public class SampleBuffer extends Obuffer
   /**
    *
    */
-  public void set_stop_flag()
-  {}
+  @Override
+  public void set_stop_flag(){
+  }
 }
