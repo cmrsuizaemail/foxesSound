@@ -41,7 +41,11 @@ public class Player
 	public Player(InputStream stream, AudioDevice device) throws JavaLayerException {
 		bitstream = new Bitstream(stream);		
 		decoder = new Decoder();
-				
+
+		// decode first frame to init the audio device
+		Header h = bitstream.readFrame();
+		decoder.decodeFrame(h, bitstream);
+
 		if (device!=null)
 		{		
 			audio = device;
@@ -166,7 +170,7 @@ public class Player
                             out = audio;
                             if (out != null) {					
                                 //out.write(output.getBuffer(), 0, array.length);
-                                out.write(output.getBuffer(),  0,  size);
+                                out.write(output.getBuffer(),  0,  output.getBufferLength());
                             }				
 			}															
 			bitstream.closeFrame();
