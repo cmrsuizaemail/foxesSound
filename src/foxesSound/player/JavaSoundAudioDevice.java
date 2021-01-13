@@ -8,6 +8,7 @@ import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
+import foxesSound.decoder.Decoder;
 import foxesSound.decoder.JavaLayerException;
 
 /**
@@ -28,13 +29,13 @@ protected void setAudioFormat(AudioFormat fmt0) {
 }
 
 protected AudioFormat getAudioFormat() {
-//        if (fmt == null) {
-    fmt = new AudioFormat(44100,
-            16,
-            2,
-            true,
-            false);
-
+    if (fmt == null) {
+        fmt = new AudioFormat(44100,
+                16,
+                2,
+                true,
+                false);
+    }
     return fmt;
 }
 
@@ -68,6 +69,8 @@ public boolean setLineGain(float gain) {
 @Override
 public void openImpl()
         throws JavaLayerException {
+    Decoder d = this.getDecoder();
+    setAudioFormat(new AudioFormat(d.getOutputFrequency(), 16, d.getOutputChannels(), true, false));
 }
 
 // createSource fix.

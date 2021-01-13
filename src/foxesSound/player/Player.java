@@ -42,7 +42,11 @@ public class Player
 	public Player(InputStream stream, AudioDevice device) throws JavaLayerException {
 		bitstream = new Bitstream(stream);		
 		decoder = new Decoder();
-				
+
+		// decode first frame to init the audio device
+		Header h = bitstream.readFrame();
+		decoder.decodeFrame(h, bitstream);
+
 		if (device!=null)
 		{		
 			audio = device;
@@ -160,13 +164,13 @@ public class Player
 			byte[] array = ShortToByte(output.getBuffer());
                         //send(Arrays.toString(output.getBuffer())+" / "+Arrays.toString(array));
                         int size = array.length;
-                        
+			
                         synchronized (this) {
                             out = audio;
                             if (out != null) {
-                                out.write(output.getBuffer(), 0, array.length);
-                                //out.write(output.getBuffer(),  0,  size);
-                            }				
+                                //out.write(output.getBuffer(), 0, array.length);
+                                out.write(output.getBuffer(),  0,  output.getBufferLength());
+                            }
 			}															
 			bitstream.closeFrame();
 		} catch (RuntimeException ex) {
