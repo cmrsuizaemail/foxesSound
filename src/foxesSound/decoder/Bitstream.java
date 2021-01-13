@@ -5,98 +5,49 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
+import static org.SysUtils.send;
+import static org.SysUtils.sendErr;
 
 
 /**
- * The <code>Bistream</code> class is responsible for parsing
+ * The Bistream class is responsible for parsing
  * an MPEG audio bitstream.
  *
- * <b>REVIEW:</b> much of the parsing currently occurs in the
+ * REVIEW: much of the parsing currently occurs in the
  * various decoders. This should be moved into this class and associated
  * inner classes.
  */
 public final class Bitstream implements BitstreamErrors
 {
-	/**
-	 * Synchronization control constant for the initial
-	 * synchronization to the start of a frame.
-	 */
-	static byte		INITIAL_SYNC = 0;
-
-	/**
-	 * Synchronization control constant for non-initial frame
-	 * synchronizations.
-	 */
-	static byte		STRICT_SYNC = 1;
-
-	// max. 1730 bytes per frame: 144 * 384kbit/s / 32000 Hz + 2 Bytes CRC
-	/**
-	 * Maximum size of the frame buffer.
-	 */
-	private static final int	BUFFER_INT_SIZE = 433;
-
-	/**
-	 * The frame buffer that holds the data for the current frame.
-	 */
-	private final int[]		framebuffer = new int[BUFFER_INT_SIZE];
-
-	/**
-	 * Number of valid bytes in the frame buffer.
-	 */
-	private int				framesize;
-
-	/**
-	 * The bytes read from the stream.
-	 */
-	private byte[]			frame_bytes = new byte[BUFFER_INT_SIZE*4];
-
-	/**
-	 * Index into <code>framebuffer</code> where the next bits are
-	 * retrieved.
-	 */
-	private int				wordpointer;
-
-	/**
-	 * Number (0-31, from MSB to LSB) of next bit for get_bits()
-	 */
-	private int				bitindex;
-
-	/**
-	 * The current specified syncword
-	 */
-	private int				syncword;
 	
-	/**
-	 * Audio header position in stream.
-	 */
-	private int				header_pos = 0;
+	static byte INITIAL_SYNC = 0; /* Synchronization control constant for the initial synchronization to the start of a frame. */
+	static byte STRICT_SYNC = 1; /* Synchronization control constant for non-initial frame synchronizations. */
+	// max. 1730 bytes per frame: 144 * 384kbit/s / 32000 Hz + 2 Bytes CRC
+	private static final int BUFFER_INT_SIZE = 433; /* Maximum size of the frame buffer. */
+	private final int[] framebuffer = new int[BUFFER_INT_SIZE]; /* The frame buffer that holds the data for the current frame. */
+	private int framesize; /* Number of valid bytes in the frame buffer. */
+	private byte[] frame_bytes = new byte[BUFFER_INT_SIZE*4]; /* The bytes read from the stream. */
+	private int wordpointer; /* Index into <code>framebuffer</code> where the next bits are retrieved. */
+	private int bitindex; /* Number (0-31, from MSB to LSB) of next bit for get_bits() */
+	private int syncword; /* The current specified syncword */
+	private int header_pos = 0; /* Audio header position in stream. */
+	private boolean single_ch_mode;
+        //private int current_frame_number;
+        //private int	last_frame_number;
 
-	/**
-	 *
-	 */
-	private boolean			single_ch_mode;
-  //private int 			current_frame_number;
-  //private int				last_frame_number;
-
-	private final int		bitmask[] = {0,	// dummy
+	private final int bitmask[] = {0,// dummy
 	 0x00000001, 0x00000003, 0x00000007, 0x0000000F,
 	 0x0000001F, 0x0000003F, 0x0000007F, 0x000000FF,
 	 0x000001FF, 0x000003FF, 0x000007FF, 0x00000FFF,
 	 0x00001FFF, 0x00003FFF, 0x00007FFF, 0x0000FFFF,
-     0x0001FFFF };
+         0x0001FFFF };
 
-	private final PushbackInputStream	source;
-
-	private final Header			header = new Header();
-
-	private final byte				syncbuf[] = new byte[4];
-
-	private Crc16[]					crc = new Crc16[1];
-
-	private byte[]					rawid3v2 = null;
-
-	private boolean					firstframe = true;
-
+	private final PushbackInputStream source;
+	private final Header header = new Header();
+	private final byte syncbuf[] = new byte[4];
+        private Crc16[]	crc = new Crc16[1];
+	private byte[] rawid3v2 = null;
+	private boolean	firstframe = true;
 
 	/**
 	 * Construct a IBitstream that reads data from a
@@ -187,6 +138,7 @@ public final class Bitstream implements BitstreamErrors
 			int revision = id3header[1];
 			in.read(id3header,0,4);
 			size = (int) (id3header[0] << 21) + (id3header[1] << 14) + (id3header[2] << 7) + (id3header[3]);
+                        send("File Size - " + size);
 		}
 		return (size+10);
 	}
@@ -225,6 +177,7 @@ public final class Bitstream implements BitstreamErrors
 	 * Reads and parses the next frame from the input source.
 	 * @return the Header describing details of the frame read,
 	 *	or null if the end of the stream has been reached.
+         * @throws foxesSound.decoder.BitstreamException
 	 */
 	public Header readFrame() throws BitstreamException
 	{
@@ -244,7 +197,7 @@ public final class Bitstream implements BitstreamErrors
 			if ((ex.getErrorCode()==INVALIDFRAME))
 			{
 				// Try to skip this frame.
-				//System.out.println("INVALIDFRAME");
+				sendErr("INVALIDFRAME");
 				try
 				{
 					closeFrame();
@@ -326,6 +279,9 @@ public final class Bitstream implements BitstreamErrors
 	/**
 	 * Determines if the next 4 bytes of the stream represent a
 	 * frame header.
+         * @param syncmode
+         * @return 
+         * @throws foxesSound.decoder.BitstreamException
 	 */
 	public boolean isSyncCurrentPosition(int syncmode) throws BitstreamException
 	{

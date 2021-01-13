@@ -54,6 +54,7 @@ public interface AudioDevice
 	 * 
 	 * This method may return prior to the samples actually being played 
 	 * by the audio device. 
+         * @throws foxesSound.decoder.JavaLayerException 
 	 */
 	public void write(short[] samples, int offs, int len) throws JavaLayerException;
 		
