@@ -23,6 +23,7 @@ public class JavaSoundAudioDevice extends AudioDeviceBase {
 private SourceDataLine source = null;
 private AudioFormat fmt = null;
 private byte[] byteBuf = new byte[4096];
+private Decoder d = this.getDecoder();
 
 protected void setAudioFormat(AudioFormat fmt0) {
     fmt = fmt0;
@@ -30,11 +31,9 @@ protected void setAudioFormat(AudioFormat fmt0) {
 
 protected AudioFormat getAudioFormat() {
     if (fmt == null) {
-        fmt = new AudioFormat(44100,
-                16,
-                2,
-                true,
-                false);
+        if(!d.equals(null)){
+        fmt = new AudioFormat(44100, 16, 2, true, false);
+        }
     }
     return fmt;
 }
@@ -67,8 +66,7 @@ public boolean setLineGain(float gain) {
 }
 
 @Override
-public void openImpl()
-        throws JavaLayerException {
+public void openImpl() throws JavaLayerException {
     Decoder d = this.getDecoder();
     setAudioFormat(new AudioFormat(d.getOutputFrequency(), 16, d.getOutputChannels(), true, false));
 }
@@ -80,16 +78,8 @@ public void createSource() throws JavaLayerException {
         Line line = AudioSystem.getLine(getSourceLineInfo());
         if (line instanceof SourceDataLine) {
             source = (SourceDataLine) line;
-            //source.open(fmt, millisecondsToBytes(fmt, 2000));
             source.open(fmt);
-
-//                if (source.isControlSupported(FloatControl.Type.MASTER_GAIN))
-//                {
-//                    System.out.println("Control");
-//                FloatControl c = (FloatControl)source.getControl(FloatControl.Type.MASTER_GAIN);
-//                c.setValue(c.getMinimum());
-//                }
-                source.start();
+            source.start();
         }
     } catch (RuntimeException | LinkageError | LineUnavailableException ex) {
         t = ex;
@@ -110,6 +100,7 @@ protected void closeImpl() {
     }
 }
 
+@Override
 protected void writeImpl(short[] samples, int offs, int len)
         throws JavaLayerException {
     if (source == null) {
@@ -139,12 +130,14 @@ protected byte[] toByteArray(short[] samples, int offs, int len) {
     return b;
 }
 
+@Override
 protected void flushImpl() {
     if (source != null) {
         source.drain();
     }
 }
 
+@Override
 public int getPosition() {
     int pos = 0;
     if (source != null) {
@@ -155,18 +148,13 @@ public int getPosition() {
 
 /**
  * Runs a short test by playing a short silent sound.
+ * @throws foxesSound.decoder.JavaLayerException
  */
-public void test()
-        throws JavaLayerException {
-//        try {
+public void test() throws JavaLayerException {
         open(new AudioFormat(22000, 16, 1, true, false));
         short[] data = new short[22000 / 10];
         write(data, 0, data.length);
         flush();
         close();
-//        } catch (RuntimeException ex) {
-//            throw new JavaLayerException("Device test failed: " + ex);
-//        }
-
-    }
+}
 }

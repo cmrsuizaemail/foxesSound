@@ -7,14 +7,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static org.SysUtils.send;
 import static org.SysUtils.sendErr;
 
 /**
- *
  * @author AidenFox
  */
 public class playSound {
@@ -22,23 +19,37 @@ public class playSound {
     private static Thread[] threads = new Thread[4];
     int num = 0;
         
-    public static void playExternalSound(String file, float volume) throws JavaLayerException{
-        try {
-             File f = new File(file);
-             Player player = new Player(new FileInputStream(f));
-             player.setGain(volume);
-                        Thread musPlay;
-                        musPlay = new Thread(() -> {
-                            try {
-                                player.play();
-                            } catch (JavaLayerException ex) {
-                                Logger.getLogger(playSound.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                          });
-                          musPlay.start();
-         } catch (FileNotFoundException ex) {
-             ex.printStackTrace();
-         }
+    public static void playExternalSound(String file, float volume) throws JavaLayerException {
+        if(file.contains("http:") || file.contains("https:")){
+               String[] url = new String[2];
+                url[0] = "-url";
+                url[1] = file;
+                Thread musPlay;
+                        musPlay = new Thread(new Runnable() {
+                   @Override
+                   public void run() {
+                       foxesSound.player.URLplayer.main(url);
+                   }
+               });
+               musPlay.start();
+        } else {        
+            try {
+                 File f = new File(file);
+                 Player player = new Player(new FileInputStream(f));
+                 player.setGain(volume);
+                            Thread musPlay;
+                            musPlay = new Thread(() -> {
+                                try {
+                                    player.play();
+                                } catch (JavaLayerException ex) {
+                                    Logger.getLogger(playSound.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                              });
+                              musPlay.start();
+             } catch (FileNotFoundException ex) {
+                 ex.printStackTrace();
+             }
+        }
     }
     
     public void playInternalSound(String filename, float volume) throws FileNotFoundException {

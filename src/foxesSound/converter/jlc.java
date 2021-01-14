@@ -5,6 +5,8 @@ import java.io.PrintWriter;
 import foxesSound.decoder.Crc16;
 import foxesSound.decoder.JavaLayerException;
 import foxesSound.decoder.OutputChannels;
+import static org.SysUtils.send;
+import static org.SysUtils.sendErr;
 
 /**
  * The <code>jlc</code> class presents the JavaLayer
@@ -15,8 +17,7 @@ import foxesSound.decoder.OutputChannels;
 public class jlc
 {
 
-	static public void main(String args[])
-	{
+	static public void main(String args[]) {
 		String[] argv;
 		long start = System.currentTimeMillis();
 		int argc = args.length + 1;
@@ -32,32 +33,25 @@ public class jlc
 		Converter conv = new Converter();
 
 		int detail = (ma.verbose_mode ?
-					  ma.verbose_level :
-				Converter.PrintWriterProgressListener.NO_DETAIL);
+		ma.verbose_level : Converter.PrintWriterProgressListener.NO_DETAIL);
 
-		Converter.ProgressListener listener =
-			new Converter.PrintWriterProgressListener(
-				new PrintWriter(System.out, true), detail);
+		Converter.ProgressListener listener = 
+                new Converter.PrintWriterProgressListener(new PrintWriter(System.out, true), detail);
 
-		try
-		{
+		try {
 			conv.convert(ma.filename, ma.output_filename, listener);
-		}
-		catch (JavaLayerException ex)
-		{
-			System.err.println("Convertion failure: "+ex);
+		} catch (JavaLayerException ex) {
+			sendErr("Convertion failure: "+ex);
 		}
 
 		System.exit(0);
   }
 
-
 	/**
 	 * Class to contain arguments for maplay.
 	 */
-	static class jlcArgs
-	{
-		// channel constants moved into OutputChannels class.
+	static class jlcArgs {
+	  // channel constants moved into OutputChannels class.
 	  //public static final int	both = 0;
 	  //public static final int	left = 1;
 	  //public static final int	right = 2;
@@ -87,51 +81,41 @@ public class jlc
 	   *
 	   * Returns true if successful.
 	   */
-	  public boolean processArgs(String[] argv)
-	  {
-		 filename = null;
-		 Crc16[] crc;
-		 crc = new Crc16[1];
-	     int i;
-		 int argc = argv.length;
-
-		 //stdout_mode  = false;
-	     verbose_mode = false;
-	     output_mode = OutputChannels.BOTH_CHANNELS;
-	     output_filename = "";
-	     if (argc < 2 || argv[1].equals("-h"))
-			 return Usage();
-
-	  	 i = 1;
-	     while (i < argc)
-		 {
+	  public boolean processArgs(String[] argv) {
+                filename = null;
+                Crc16[] crc;
+                crc = new Crc16[1];
+                int i;
+                int argc = argv.length;
+		//stdout_mode  = false;
+                verbose_mode = false;
+                output_mode = OutputChannels.BOTH_CHANNELS;
+                output_filename = "";
+                
+                if (argc < 2 || argv[1].equals("-h")) {
+                   return Usage();
+                }
+	  	i = 1;
+	     while (i < argc) {
 		   /* System.out.println("Option = "+argv[i]);*/
-		   if (argv[i].charAt(0) == '-')
-		   {
-			 if (argv[i].startsWith("-v"))
-			 {
+		   if (argv[i].charAt(0) == '-') {
+			 if (argv[i].startsWith("-v")) {
 			 	verbose_mode = true;
-				if (argv[i].length()>2)
-				{
-					try
-					{
+				if (argv[i].length()>2) {
+					try {
 						String level = argv[i].substring(2);
 						verbose_level = Integer.parseInt(level);
-					}
-					catch (NumberFormatException ex)
-					{
-						System.err.println("Invalid verbose level. Using default.");
+					} catch (NumberFormatException ex) {
+						sendErr("Invalid verbose level. Using default.");
 					}
 				}
-				System.out.println("Verbose Activated (level "+verbose_level+")");
+				send("Verbose Activated (level "+verbose_level+")");
 			 }
 			 /* else if (argv[i].equals("-s"))
 				ma.stdout_mode = true; */
-			 else if (argv[i].equals("-p"))
-			 {
-	      		if (++i == argc)
-			  	{
-		           System.out.println("Please specify an output filename after the -p option!");
+			 else if (argv[i].equals("-p")) {
+	      		if (++i == argc) {
+		           sendErr("Please specify an output filename after the -p option!");
 	 	           System.exit (1);
 	          	}
 		        //output_mode = O_WAVEFILE;
@@ -149,16 +133,16 @@ public class jlc
 			 }*/
 		     else return Usage();
 	      }
-		  else
-		  {
+                   else {
 		  	filename = argv[i];
 			System.out.println("FileName = "+argv[i]);
 			if (filename == null) return Usage();
 		  }
 		  i++;
 	    }
-		if (filename == null)
-			return Usage();
+		if (filename == null) {
+                    return Usage();
+                }
 
 		return true;
 	  }
@@ -166,7 +150,7 @@ public class jlc
 
 	   /**
 	    * Usage of JavaLayer.
-		*/
+            */
 	   public boolean Usage()
 	   {
 	  	 System.out.println("JavaLayer Converter :");
@@ -180,9 +164,8 @@ public class jlc
 	     System.out.println("  -d         downmix mode (layer III only)");*/
 	     System.out.println("  -p name    output as a PCM wave file");
 	     System.out.println("");
-	     System.out.println("  More info on http://www.javazoom.net");
 	     /* System.out.println("  -f ushort  use this scalefactor instead of the default value 32768");*/
-		 return false;
+             return false;
 	   }
 	};
 };

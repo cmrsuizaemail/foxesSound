@@ -9,8 +9,6 @@ import foxesSound.decoder.Header;
 import foxesSound.decoder.JavaLayerException;
 import foxesSound.decoder.SampleBuffer;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import static org.SysUtils.send;
 import static org.SysUtils.sendErr;
 	
 /**
@@ -161,14 +159,10 @@ public class Player
 				
 			// sample buffer set when decoder constructed
 			SampleBuffer output = (SampleBuffer) decoder.decodeFrame(h, bitstream);
-			byte[] array = ShortToByte(output.getBuffer());
-                        //send(Arrays.toString(output.getBuffer())+" / "+Arrays.toString(array));
-                        int size = array.length;
 			
                         synchronized (this) {
                             out = audio;
                             if (out != null) {
-                                //out.write(output.getBuffer(), 0, array.length);
                                 out.write(output.getBuffer(),  0,  output.getBufferLength());
                             }
 			}															
@@ -178,30 +172,9 @@ public class Player
 		}		
 		return true;
 	}
-        
-        private byte[] ShortToByte(short[] buffer) {
-            int N = buffer.length;
-            float f[] = new float[N];
-            float min = 0.0f;
-            float max = 0.0f;
-            for (int i=0; i<N; i++) {
-            f[i] = (float)(buffer[i]);
-            if (f[i] > max) max = f[i];
-            if (f[i] < min) min = f[i];
-            }
-            float scaling = 1.0f+(max-min)/256.0f;
-
-            ByteBuffer byteBuf = ByteBuffer.allocate(N);
-            for (int i=0; i<N; i++) {
-            byte b = (byte)(f[i]/scaling); /*convert to byte. */
-            byteBuf.put(b);
-            }
-            return byteBuf.array();
-        }
 
         public boolean setGain(float newGain) {
             if (audio instanceof JavaSoundAudioDevice) {
-                //System.out.println("Instance Of "+audio);
                 JavaSoundAudioDevice jsAudio = (JavaSoundAudioDevice) audio;
                     try {
                         jsAudio.write(null, 0, 0);

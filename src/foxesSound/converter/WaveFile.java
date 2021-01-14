@@ -32,11 +32,9 @@ public class WaveFile extends RiffFile
        }
    }
 
-
-	class WaveFormat_Chunk
-	{
-   		public RiffChunkHeader         header;
-   		public WaveFormat_ChunkData    data;
+	class WaveFormat_Chunk {
+   		public RiffChunkHeader header;
+   		public WaveFormat_ChunkData data;
 
    		public WaveFormat_Chunk()
    		{
@@ -65,7 +63,7 @@ public class WaveFile extends RiffFile
 
 	public class WaveFileSample
 	{
-   		public short[] 				chan;
+   		public short[] chan;
 		
 		public WaveFileSample()
 		{chan = new short[WaveFile.MAX_WAVE_CHANNELS];}
@@ -133,8 +131,12 @@ public class WaveFile extends RiffFile
    }*/
 
    /**
-    *
-	*/
+     * @param Filename
+     * @param SamplingRate
+     * @param BitsPerSample
+     * @param NumChannels
+     * @return 
+    */
    public int OpenForWrite (String Filename, int SamplingRate, short BitsPerSample, short NumChannels)
    {
       // Verify parameters...
@@ -292,7 +294,10 @@ public class WaveFile extends RiffFile
 
    /**
     * Write 16-bit audio
-	*/
+     * @param data
+     * @param numData
+     * @return 
+     */
    public int WriteData ( short[] data, int numData )
    {
    	  int extraBytes = numData * 2;

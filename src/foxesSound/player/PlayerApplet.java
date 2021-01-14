@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.net.URL;
 
 import foxesSound.decoder.JavaLayerException;
+import static org.SysUtils.sendErr;
 
 /**
  * A simple applet that plays an MPEG audio file. 
@@ -38,9 +39,9 @@ public class PlayerApplet extends Applet implements Runnable
 	 * 
 	 * @return	an audio device instance that will be used to 
 	 *			sound the audio stream.
+         * @throws foxesSound.decoder.JavaLayerException
 	 */
-	protected AudioDevice getAudioDevice() throws JavaLayerException
-	{
+	protected AudioDevice getAudioDevice() throws JavaLayerException {
 		return FactoryRegistry.systemRegistry().createAudioDevice();
 	}
 	
@@ -209,6 +210,7 @@ public class PlayerApplet extends Applet implements Runnable
 	 * The run method for the audio player thread. Simply calls
 	 * play() on the player to play the entire stream. 
 	 */
+        @Override
 	public void run()
 	{				
 		if (player!=null)
@@ -219,7 +221,7 @@ public class PlayerApplet extends Applet implements Runnable
 			}
 			catch (JavaLayerException ex)
 			{
-				System.err.println("Problem playing audio: "+ex);
+				sendErr("Problem playing audio: "+ex);
 			}			
 		}
 	}

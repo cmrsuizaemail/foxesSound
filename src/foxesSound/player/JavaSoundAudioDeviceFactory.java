@@ -60,6 +60,5 @@ public class JavaSoundAudioDeviceFactory extends AudioDeviceFactory
 	public void testAudioDevice() throws JavaLayerException
 	{
 		JavaSoundAudioDevice dev = createAudioDeviceImpl();
-		//dev.;
 	}
 }

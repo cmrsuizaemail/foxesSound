@@ -138,7 +138,7 @@ public final class Bitstream implements BitstreamErrors
 			int revision = id3header[1];
 			in.read(id3header,0,4);
 			size = (int) (id3header[0] << 21) + (id3header[1] << 14) + (id3header[2] << 7) + (id3header[3]);
-                        send("File Size - " + size);
+                        //send("File Size - " + size);
 		}
 		return (size+10);
 	}

@@ -13,7 +13,7 @@ public class SysUtils {
     private static String scriptName = "[FoxesSound]";
     public static void sendErr(String Error){
         String ErrorStyle = scriptName+"[Error] " + Error;
-        System.out.println(ErrorStyle);
+        System.err.println(ErrorStyle);
     }
     
     public static void send(String Message){
@@ -23,6 +23,6 @@ public class SysUtils {
 
     public static void sendException(RuntimeException ex) {
         String exceptionStyle = scriptName+"[Exception] "+ex;
-        System.out.println(exceptionStyle);
+        System.err.println(exceptionStyle);
     }
 }
