@@ -37,7 +37,7 @@ public class start extends JApplet {
             } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
             }
             
-            JFrame frame = new JFrame("foxesSound 1.1.7");
+            JFrame frame = new JFrame("foxesSound 1.1.8");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             
             JApplet applet = new start();
@@ -67,11 +67,16 @@ public class start extends JApplet {
         Button btn = new Button();
         btn.setText("Test snd");
         btn.setOnAction((ActionEvent event) -> {
-            try {
-                org.test.test();
-            } catch (JavaLayerException | FileNotFoundException | InterruptedException ex) {
-                Logger.getLogger(start.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            btn.setDisable(true);
+            Thread playSnd;
+            playSnd = new Thread(() -> {
+                try {
+                    org.test.test();
+                } catch (JavaLayerException | FileNotFoundException | InterruptedException ex) {
+                    Logger.getLogger(start.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            });
+            playSnd.start();
         });
         StackPane root = new StackPane();
         root.getChildren().add(btn);

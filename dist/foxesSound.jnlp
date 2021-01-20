@@ -8,7 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="foxesSound.jar" size="304818" download="eager" />
+    <jar href="foxesSound.jar" size="304952" download="eager" />
   </resources>
   <application-desc main-class="org.start"  name="foxesSound" >
   </application-desc>
