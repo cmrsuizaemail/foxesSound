@@ -4,7 +4,7 @@ package org;
  * @author AidenFox
  */
 
-import foxesSound.decoder.JavaLayerException;
+import foxesworld.foxesSound.decoder.JavaLayerException;
 import java.io.FileNotFoundException;
 import static org.SysUtils.send;
 
@@ -19,7 +19,7 @@ public class test {
         playSound snd = new playSound();
         snd.playInternalSound("/assets/start.mp3", 5f);
         playSound.playExternalSound("https://login.foxesworld.ru/launcher/files/eventSounds/mus/mus9.mp3", (float) -20f);
-        Integer wait = getRandomIntegerBetweenRange(10000, 35000);
+        Integer wait = getRandomIntegerBetweenRange(10000, 25000);
         String sound;
         
         if(wait >= 20000){

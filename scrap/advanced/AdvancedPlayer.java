@@ -2,14 +2,14 @@ package foxesSound.player.advanced;
 
 import java.io.InputStream;
 
-import foxesSound.decoder.Bitstream;
-import foxesSound.decoder.BitstreamException;
-import foxesSound.decoder.Decoder;
-import foxesSound.decoder.Header;
-import foxesSound.decoder.JavaLayerException;
-import foxesSound.decoder.SampleBuffer;
-import foxesSound.player.AudioDevice;
-import foxesSound.player.FactoryRegistry;
+import foxesworld.foxesSound.decoder.Bitstream;
+import foxesworld.foxesSound.decoder.BitstreamException;
+import foxesworld.foxesSound.decoder.Decoder;
+import foxesworld.foxesSound.decoder.Header;
+import foxesworld.foxesSound.decoder.JavaLayerException;
+import foxesworld.foxesSound.decoder.SampleBuffer;
+import foxesworld.foxesSound.player.AudioDevice;
+import foxesworld.foxesSound.player.FactoryRegistry;
 
 /**
  * a hybrid of foxesSound.player.Player tweeked to include <code>play(startFrame, endFrame)</code>

@@ -1,8 +1,8 @@
 package org;
 
 
-import foxesSound.decoder.JavaLayerException;
-import foxesSound.player.Player;
+import foxesworld.foxesSound.decoder.JavaLayerException;
+import foxesworld.foxesSound.player.Player;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -28,7 +28,7 @@ public class playSound {
                         musPlay = new Thread(new Runnable() {
                    @Override
                    public void run() {
-                       foxesSound.player.URLplayer.main(url);
+                       foxesworld.foxesSound.player.URLplayer.main(url);
                    }
                });
                musPlay.start();

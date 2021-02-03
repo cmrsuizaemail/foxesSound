@@ -5,7 +5,7 @@
  */
 package org;
 
-import foxesSound.decoder.JavaLayerException;
+import foxesworld.foxesSound.decoder.JavaLayerException;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.FileNotFoundException;
