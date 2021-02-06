@@ -8,7 +8,6 @@ import foxesworld.foxesSound.decoder.Decoder;
 import foxesworld.foxesSound.decoder.Header;
 import foxesworld.foxesSound.decoder.JavaLayerException;
 import foxesworld.foxesSound.decoder.SampleBuffer;
-import java.nio.ByteBuffer;
 import static org.SysUtils.sendErr;
 	
 /**
